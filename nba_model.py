@@ -356,10 +356,6 @@ def main():
     home_season = pd.DataFrame(columns = colum_names)
     away_season = pd.DataFrame(columns = colum_names)
     
-    raw_avg_season = pd.DataFrame(columns = colum_names)
-    raw_avg_home_season = pd.DataFrame(columns = colum_names)
-    raw_avg_away_season = pd.DataFrame(columns = colum_names)
-    
     total_season = aggregateTotals(df, raw_season)
     ras = total_season
     
@@ -368,6 +364,28 @@ def main():
     
     total_away_season = aggregateAwayTotals(df, away_season)
     raas = total_away_season
+    
+    # get the averages for stats for all games
+    for (columnName, columnData) in ras.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            ras[columnName] = total_season[columnName] / total_season['Games']        
+            
+    
+    # get the averages for stats for all games
+    for (columnName, columnData) in rahs.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            rahs[columnName] = total_home_season[columnName] / total_home_season['Games']
+            
+    # get the averages for stats for all games
+    for (columnName, columnData) in raas.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            raas[columnName] = total_away_season[columnName] / total_away_season['Games']
     
     #tempo calculations, possible start of new function
     ras['Tempo'] = ras['FGA'] - ras['ORB'] + ras['TOV'] + (ras['FTA'] * 0.4)
@@ -395,31 +413,31 @@ def main():
     # effective field goal percentage calculations
     # adds additional weight to 3-pointers made
     # multiply by 100 to get percentage value
-    ras['EFG'] = (ras['FGM'] + 0.5 * ras['3PM']) / ras['FGA']
-    rahs['EFG'] = (rahs['FGM'] + 0.5 * rahs['3PM']) / rahs['FGA']
-    raas['EFG'] = (raas['FGM'] + 0.5 * raas['3PM']) / raas['FGA']
+    ras['EFG%'] = ((ras['FGM'] + 0.5 * ras['3PM']) / ras['FGA']) * 100
+    rahs['EFG%'] = ((rahs['FGM'] + 0.5 * rahs['3PM']) / rahs['FGA']) * 100
+    raas['EFG%'] = ((raas['FGM'] + 0.5 * raas['3PM']) / raas['FGA']) * 100
     
     # defensive effective field goal percentage
-    ras['dEFG'] = (ras['oFGM'] + 0.5 * ras['o3PM']) / ras['oFGA']
-    rahs['dEFG'] = (rahs['oFGM'] + 0.5 * rahs['o3PM']) / rahs['oFGA']
-    rahs['dEFG'] = (rahs['oFGM'] + 0.5 * rahs['o3PM']) / rahs['oFGA']
+    ras['dEFG%'] = (ras['oFGM'] + 0.5 * ras['o3PM']) / ras['oFGA'] * 100
+    rahs['dEFG%'] = (rahs['oFGM'] + 0.5 * rahs['o3PM']) / rahs['oFGA'] * 100
+    raas['dEFG%'] = (raas['oFGM'] + 0.5 * raas['o3PM']) / raas['oFGA'] * 100
     
     # offensive rebound percentage
     # what percent of misses does a team rebound
-    ras['ORB%'] = ras['ORB'] / (ras['ORB'] + ras['oDRB'])
-    rahs['ORB%'] = rahs['ORB'] / (rahs['ORB'] + rahs['oDRB'])
-    raas['ORB%'] = raas['ORB'] / (raas['ORB'] + raas['oDRB'])
+    ras['ORB%'] = ras['ORB'] / (ras['ORB'] + ras['oDRB']) * 100
+    rahs['ORB%'] = rahs['ORB'] / (rahs['ORB'] + rahs['oDRB']) * 100
+    raas['ORB%'] = raas['ORB'] / (raas['ORB'] + raas['oDRB']) * 100
     
     # defensive rebound percentage
     # what percent of opponents misses were rebounded by team
-    ras['DRB%'] = ras['DRB'] / (ras['DRB'] + ras['oORB'])
-    rahs['DRB%'] = rahs['DRB'] / (rahs['DRB'] + rahs['oORB'])
-    rahs['DRB%'] = rahs['DRB'] / (rahs['DRB'] + rahs['oORB'])
+    ras['DRB%'] = ras['DRB'] / (ras['DRB'] + ras['oORB']) * 100
+    rahs['DRB%'] = rahs['DRB'] / (rahs['DRB'] + rahs['oORB']) * 100
+    raas['DRB%'] = raas['DRB'] / (raas['DRB'] + raas['oORB']) * 100
     
     # total rebound percentage
-    ras['TRB%'] = ras['TRB'] / (ras['TRB'] + ras['oTRB'])
-    rahs['TRB%'] = rahs['TRB'] / (rahs['TRB'] + rahs['oTRB'])
-    raas['TRB%'] = raas['TRB'] / (raas['TRB'] + raas['oTRB'])
+    ras['TRB%'] = ras['TRB'] / (ras['TRB'] + ras['oTRB']) * 100
+    rahs['TRB%'] = rahs['TRB'] / (rahs['TRB'] + rahs['oTRB']) * 100
+    raas['TRB%'] = raas['TRB'] / (raas['TRB'] + raas['oTRB']) * 100
     
     # stat to show how well a team gets to the free throw line
     # FTA FGA ratio
@@ -433,48 +451,56 @@ def main():
     raas['oFTA FGA R'] = raas['oFTA'] / raas['oFGA']
     
     # turnover percentage
-    ras['TOV%'] = ras['TOV'] / ras['Tempo']
-    rahs['TOV%'] = rahs['TOV'] / rahs['Tempo']
-    raas['TOV%'] = raas['TOV'] / raas['Tempo']
+    ras['TOV%'] = ras['TOV'] / ras['Tempo'] * 100
+    rahs['TOV%'] = rahs['TOV'] / rahs['Tempo'] * 100
+    raas['TOV%'] = raas['TOV'] / raas['Tempo'] * 100
     
     # defensive turnover percentage
-    ras['DTOV%'] = ras['oTOV'] / ras['oTempo']
-    rahs['DTOV%'] = rahs['oTOV'] / rahs['oTempo']
-    raas['DTOV%'] = raas['oTOV'] / raas['oTempo']
+    ras['DTOV%'] = ras['oTOV'] / ras['oTempo'] * 100
+    rahs['DTOV%'] = rahs['oTOV'] / rahs['oTempo'] * 100
+    raas['DTOV%'] = raas['oTOV'] / raas['oTempo'] * 100
     
-    # get the averages for stats for all games
+    #avg_list = ['Points', 'Points Allowed', 'FGM', 'FGA', '3PM', '3PA', 'FTA', 'ORB', 'DRB', 'TRB', 'TOV', 'oFGM', 'oFGA', 'o3PM', 'o3PA', 'oFTA', 'oORB', 'oDRB', 'oTRB', 'oTOV', 'Tempo', 'oTempo', 'Avg Tempo', 'OE', 'DE', 'EFG', 'dEFG', 'ORB%', 'DRB%', 'TRB%', 'FTA FGA R', 'oFTA FGA R', 'TOV%', 'DTOV%']
+    
+    ras = ras.append({'Team': 'League'}, ignore_index=True)
+    rahs = rahs.append({'Team': 'League'}, ignore_index=True)
+    raas = raas.append({'Team': 'League'}, ignore_index=True)
+    
     for (columnName, columnData) in ras.iteritems():
         if columnName == 'Team':
             pass
         elif columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
-            ras.loc['League'] = ras.sum()
+            ras.loc[30][columnName] = ras[columnName].sum()
         else:
-            ras.loc['League'] = ras.mean()
-    
-    # get the averages for stats for all games
-    for (columnName, columnData) in rahs.iteritems():
-        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
-            pass
-        else:
-            rahs[columnName] = total_season[columnName] / total_season['Games']
+            ras.loc[30][columnName] = ras[columnName].mean()
             
-    # get the averages for stats for all games
-    for (columnName, columnData) in raas.iteritems():
-        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+    for (columnName, columnData) in rahs.iteritems():
+        if columnName == 'Team':
             pass
+        elif columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            rahs.loc[30][columnName] = rahs[columnName].sum()
         else:
-            raas[columnName] = total_season[columnName] / total_season['Games']
+            rahs.loc[30][columnName] = rahs[columnName].mean()
+            
+    for (columnName, columnData) in raas.iteritems():
+        if columnName == 'Team':
+            pass
+        elif columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            raas.loc[30][columnName] = raas[columnName].sum()
+        else:
+            raas.loc[30][columnName] = raas[columnName].mean()
     
-
-    
-    
-    total_season.loc['League'] = total_season.sum()
-    total_home_season.loc['League'] = home_season.sum()
-    total_away_season.loc['League'] = away_season.sum()
-    
-    
-    
-    
+    '''
+    ras.append({'Team': 'League', 
+                'Games': 0, 'Wins': 0, 'Losses': 0,
+                                    'Points': 0, 'Points Allowed': 0, 'FGM': 0, 'FGA': 0,
+                                    '3PM': 0, '3PA': 0, 'FTA': 0, 'ORB': 0, 'DRB': 0,
+                                    'TRB': 0, 'TOV': 0, 'oFGM': 0, 'oFGA': 0, 'o3PM': 0,
+                                    'o3PA': 0, 'oFTA': 0, 'oORB': 0, 'oDRB': 0, 'oTRB': 0, 'oTOV': 0,
+                                    'Tempo': 0, 'oTempo': 0, 'Avg Tempo': 0, 'OE': 0, 'DE': 0,
+                                    'EFG': 0, 'dEFG': 0, 'ORB%': 0, 'DRB%': 0, 'TRB%': 0,
+                                    'FTA FGA R': 0, 'oFTA FGA R': 0, 'TOV%': 0, 'DTOV%': 0}, ignore_index=True)
+    '''
 if __name__ == "__main__":
     main()
         
