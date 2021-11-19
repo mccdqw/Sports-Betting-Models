@@ -7,7 +7,7 @@ Created on Thu Nov 18 12:19:26 2021
 
 import pandas as pd
 
-def aggregateAverages(df, raw_season):
+def aggregateTotals(df, raw_season):
     row = 0
     
     for i in df.index:
@@ -50,7 +50,7 @@ def aggregateAverages(df, raw_season):
         op3m = df['o3PM'][i]
         op3a = df['o3PA'][i]
         
-        ofta = df['FTA'][i]
+        ofta = df['oFTA'][i]
         
         oorb = df['oORB'][i]
         otrb = df['oTRB'][i]
@@ -102,9 +102,9 @@ def aggregateAverages(df, raw_season):
         raw_season.loc[row,'oTRB'] = raw_season.loc[row,'oTRB'] + otrb
         raw_season.loc[row,'oTOV'] = raw_season.loc[row,'oTOV'] + otov
         
-    print(raw_season)
+    return raw_season
     
-def aggregateHomeAverages(df, raw_season):
+def aggregateHomeTotals(df, raw_season):
     row = 0
     
     for i in df.index:
@@ -155,7 +155,7 @@ def aggregateHomeAverages(df, raw_season):
             op3m = df['o3PM'][i]
             op3a = df['o3PA'][i]
             
-            ofta = df['FTA'][i]
+            ofta = df['oFTA'][i]
             
             oorb = df['oORB'][i]
             otrb = df['oTRB'][i]
@@ -201,9 +201,9 @@ def aggregateHomeAverages(df, raw_season):
             raw_season.loc[row,'oTRB'] = raw_season.loc[row,'oTRB'] + otrb
             raw_season.loc[row,'oTOV'] = raw_season.loc[row,'oTOV'] + otov
         
-    print(raw_season)
+    return raw_season
     
-def aggregateAwayAverages(df, raw_season):
+def aggregateAwayTotals(df, raw_season):
     row = 0
     
     for i in df.index:
@@ -254,7 +254,7 @@ def aggregateAwayAverages(df, raw_season):
             op3m = df['o3PM'][i]
             op3a = df['o3PA'][i]
             
-            ofta = df['FTA'][i]
+            ofta = df['oFTA'][i]
             
             oorb = df['oORB'][i]
             otrb = df['oTRB'][i]
@@ -300,10 +300,53 @@ def aggregateAwayAverages(df, raw_season):
             raw_season.loc[row,'oTRB'] = raw_season.loc[row,'oTRB'] + otrb
             raw_season.loc[row,'oTOV'] = raw_season.loc[row,'oTOV'] + otov
         
-    print(raw_season)
-            
-        
+    return raw_season
 
+def aggregateTotalAverages(total_season, raw_avg_season):
+    raw_avg_season['Team'] = total_season['Team'].copy()
+    raw_avg_season['Games'] = total_season['Games'].copy()
+    raw_avg_season['Wins'] = total_season['Wins'].copy()
+    raw_avg_season['Losses'] = total_season['Losses'].copy()
+    
+    # get the averages for stats for all games
+    for (columnName, columnData) in raw_avg_season.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            raw_avg_season[columnName] = total_season[columnName] / total_season['Games']
+            
+    return raw_avg_season
+
+def aggregateHomeAverages(total_home_season, raw_avg_home_season):
+    raw_avg_home_season['Team'] = total_home_season['Team'].copy()
+    raw_avg_home_season['Games'] = total_home_season['Games'].copy()
+    raw_avg_home_season['Wins'] = total_home_season['Wins'].copy()
+    raw_avg_home_season['Losses'] = total_home_season['Losses'].copy()
+    
+    # get the averages for stats for all home games
+    for (columnName, columnData) in raw_avg_home_season.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            raw_avg_home_season[columnName] = total_home_season[columnName] / total_home_season['Games']
+            
+    return raw_avg_home_season
+
+def aggregateAwayAverages(total_away_season, raw_avg_away_season):
+    raw_avg_away_season['Team'] = total_away_season['Team'].copy()
+    raw_avg_away_season['Games'] = total_away_season['Games'].copy()
+    raw_avg_away_season['Wins'] = total_away_season['Wins'].copy()
+    raw_avg_away_season['Losses'] = total_away_season['Losses'].copy()
+    
+    # get the averages for stats for all away games
+    for (columnName, columnData) in raw_avg_away_season.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            raw_avg_away_season[columnName] = total_away_season[columnName] / total_away_season['Games']
+            
+    return raw_avg_away_season
+        
 
 def main():
     df = pd.read_csv("E:\\Sports-Betting-Models\\Data\\NBA\\NBA Game Log by Team - Raw Log.csv")
@@ -313,9 +356,123 @@ def main():
     home_season = pd.DataFrame(columns = colum_names)
     away_season = pd.DataFrame(columns = colum_names)
     
-    aggregateAverages(df, raw_season)
-    aggregateHomeAverages(df, home_season)
-    aggregateAwayAverages(df, away_season)
+    raw_avg_season = pd.DataFrame(columns = colum_names)
+    raw_avg_home_season = pd.DataFrame(columns = colum_names)
+    raw_avg_away_season = pd.DataFrame(columns = colum_names)
+    
+    total_season = aggregateTotals(df, raw_season)
+    ras = total_season
+    
+    total_home_season = aggregateHomeTotals(df, home_season)
+    rahs = total_home_season
+    
+    total_away_season = aggregateAwayTotals(df, away_season)
+    raas = total_away_season
+    
+    #tempo calculations, possible start of new function
+    ras['Tempo'] = ras['FGA'] - ras['ORB'] + ras['TOV'] + (ras['FTA'] * 0.4)
+    ras['oTempo'] = ras['oFGA'] - ras['oORB'] + ras['oTOV'] + (ras['oFTA'] * 0.4)
+    ras['Avg Tempo'] = (ras['Tempo'] + ras['oTempo']) / 2
+    
+    rahs['Tempo'] = rahs['FGA'] - rahs['ORB'] + rahs['TOV'] + (rahs['FTA'] * 0.4)
+    rahs['oTempo'] = rahs['oFGA'] - rahs['oORB'] + rahs['oTOV'] + (rahs['oFTA'] * 0.4)
+    rahs['Avg Tempo'] = (rahs['Tempo'] + rahs['oTempo']) / 2
+    
+    raas['Tempo'] = raas['FGA'] - raas['ORB'] + raas['TOV'] + (raas['FTA'] * 0.4)
+    raas['oTempo'] = raas['oFGA'] - raas['oORB'] + raas['oTOV'] + (raas['oFTA'] * 0.4)
+    raas['Avg Tempo'] = (raas['Tempo'] + raas['oTempo']) / 2
+    
+    #offensive efficiency calculations
+    ras['OE'] = (ras['Points'] / ras['Tempo']) * 100
+    rahs['OE'] = (rahs['Points'] / rahs['Tempo']) * 100
+    raas['OE'] = (raas['Points'] / raas['Tempo']) * 100
+    
+    #defensive efficiency calculations
+    ras['DE'] = (ras['Points Allowed'] / ras['oTempo']) * 100
+    rahs['DE'] = (rahs['Points Allowed'] / rahs['oTempo']) * 100
+    raas['DE'] = (ras['Points Allowed'] / raas['oTempo']) * 100
+    
+    # effective field goal percentage calculations
+    # adds additional weight to 3-pointers made
+    # multiply by 100 to get percentage value
+    ras['EFG'] = (ras['FGM'] + 0.5 * ras['3PM']) / ras['FGA']
+    rahs['EFG'] = (rahs['FGM'] + 0.5 * rahs['3PM']) / rahs['FGA']
+    raas['EFG'] = (raas['FGM'] + 0.5 * raas['3PM']) / raas['FGA']
+    
+    # defensive effective field goal percentage
+    ras['dEFG'] = (ras['oFGM'] + 0.5 * ras['o3PM']) / ras['oFGA']
+    rahs['dEFG'] = (rahs['oFGM'] + 0.5 * rahs['o3PM']) / rahs['oFGA']
+    rahs['dEFG'] = (rahs['oFGM'] + 0.5 * rahs['o3PM']) / rahs['oFGA']
+    
+    # offensive rebound percentage
+    # what percent of misses does a team rebound
+    ras['ORB%'] = ras['ORB'] / (ras['ORB'] + ras['oDRB'])
+    rahs['ORB%'] = rahs['ORB'] / (rahs['ORB'] + rahs['oDRB'])
+    raas['ORB%'] = raas['ORB'] / (raas['ORB'] + raas['oDRB'])
+    
+    # defensive rebound percentage
+    # what percent of opponents misses were rebounded by team
+    ras['DRB%'] = ras['DRB'] / (ras['DRB'] + ras['oORB'])
+    rahs['DRB%'] = rahs['DRB'] / (rahs['DRB'] + rahs['oORB'])
+    rahs['DRB%'] = rahs['DRB'] / (rahs['DRB'] + rahs['oORB'])
+    
+    # total rebound percentage
+    ras['TRB%'] = ras['TRB'] / (ras['TRB'] + ras['oTRB'])
+    rahs['TRB%'] = rahs['TRB'] / (rahs['TRB'] + rahs['oTRB'])
+    raas['TRB%'] = raas['TRB'] / (raas['TRB'] + raas['oTRB'])
+    
+    # stat to show how well a team gets to the free throw line
+    # FTA FGA ratio
+    ras['FTA FGA R'] = ras['FTA'] / ras['FGA']
+    rahs['FTA FGA R'] = rahs['FTA'] / rahs['FGA']
+    raas['FTA FGA R'] = raas['FTA'] / raas['FGA']
+    
+    # opponent FTA FGA ratio
+    ras['oFTA FGA R'] = ras['oFTA'] / ras['oFGA']
+    rahs['oFTA FGA R'] = rahs['oFTA'] / rahs['oFGA']
+    raas['oFTA FGA R'] = raas['oFTA'] / raas['oFGA']
+    
+    # turnover percentage
+    ras['TOV%'] = ras['TOV'] / ras['Tempo']
+    rahs['TOV%'] = rahs['TOV'] / rahs['Tempo']
+    raas['TOV%'] = raas['TOV'] / raas['Tempo']
+    
+    # defensive turnover percentage
+    ras['DTOV%'] = ras['oTOV'] / ras['oTempo']
+    rahs['DTOV%'] = rahs['oTOV'] / rahs['oTempo']
+    raas['DTOV%'] = raas['oTOV'] / raas['oTempo']
+    
+    # get the averages for stats for all games
+    for (columnName, columnData) in ras.iteritems():
+        if columnName == 'Team':
+            pass
+        elif columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            ras.loc['League'] = ras.sum()
+        else:
+            ras.loc['League'] = ras.mean()
+    
+    # get the averages for stats for all games
+    for (columnName, columnData) in rahs.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            rahs[columnName] = total_season[columnName] / total_season['Games']
+            
+    # get the averages for stats for all games
+    for (columnName, columnData) in raas.iteritems():
+        if columnName == 'Team' or columnName == 'Games' or columnName == 'Wins' or columnName == 'Losses':
+            pass
+        else:
+            raas[columnName] = total_season[columnName] / total_season['Games']
+    
+
+    
+    
+    total_season.loc['League'] = total_season.sum()
+    total_home_season.loc['League'] = home_season.sum()
+    total_away_season.loc['League'] = away_season.sum()
+    
+    
     
     
 if __name__ == "__main__":
